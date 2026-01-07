@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thariq Arian Khalfani | AI Engineer & Architect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --bg-panel: rgba(20, 20, 35, 0.6);
+            --primary: #00f3ff;
+            --secondary: #bc13fe;
+            --accent: #ff0055;
+            --text-main: #e0e0e0;
+            --text-dim: #94a3b8;
+            --border-glow: 0 0 10px rgba(0, 243, 255, 0.5);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--primary);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        body:hover .cursor-outline {
+            background-color: rgba(0, 243, 255, 0.1);
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .highlight {
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+        }
+
+        .highlight-sec {
+            color: var(--secondary);
+            text-shadow: 0 0 10px rgba(188, 19, 254, 0.4);
+        }
+
+        .highlight-accent {
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.4);
+        }
+
+        .section-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::before {
+            content: '[ ';
+            color: var(--accent);
+            margin-right: 10px;
+        }
+
+        .section-title::after {
+            content: ' ]';
+            color: var(--accent);
+            margin-left: 10px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 2rem;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: var(--primary);
+            letter-spacing: 3px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            position: relative;
+            padding: 5px 0;
+            transition: color 0.3s;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--secondary);
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding-top: 60px;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            max-width: 900px;
+        }
+
+        .glitch-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            font-weight: 900;
+            position: relative;
+            color: white;
+        }
+
+        .hero h1::before,
+        .hero h1::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero h1::before {
+            left: 2px;
+            text-shadow: -1px 0 var(--accent);
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        .hero h1::after {
+            left: -2px;
+            text-shadow: -1px 0 var(--primary);
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                clip: rect(10px, 9999px, 31px, 0);
+            }
+
+            20% {
+                clip: rect(65px, 9999px, 89px, 0);
+            }
+
+            40% {
+                clip: rect(15px, 9999px, 40px, 0);
+            }
+
+            60% {
+                clip: rect(90px, 9999px, 95px, 0);
+            }
+
+            80% {
+                clip: rect(30px, 9999px, 60px, 0);
+            }
+
+            100% {
+                clip: rect(10px, 9999px, 100px, 0);
+            }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% {
+                clip: rect(65px, 9999px, 100px, 0);
+            }
+
+            20% {
+                clip: rect(10px, 9999px, 45px, 0);
+            }
+
+            40% {
+                clip: rect(95px, 9999px, 10px, 0);
+            }
+
+            60% {
+                clip: rect(35px, 9999px, 75px, 0);
+            }
+
+            80% {
+                clip: rect(50px, 9999px, 30px, 0);
+            }
+
+            100% {
+                clip: rect(80px, 9999px, 120px, 0);
+            }
+        }
+
+        .hero-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            display: inline-block;
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1rem;
+            background: rgba(0, 243, 255, 0.05);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+
+        .hero-desc {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .cyber-btn {
+            position: relative;
+            padding: 1rem 2.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            background: transparent;
+            border: 1px solid var(--primary);
+            text-decoration: none;
+            overflow: hidden;
+            transition: 0.3s;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .cyber-btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
+        }
+
+        .cyber-btn.secondary {
+            color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .cyber-btn.secondary:hover {
+            background: var(--secondary);
+            color: var(--bg-dark);
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.4);
+        }
+
+        /* Featured Project Showcase */
+        .featured-project-section {
+            padding: 8rem 0;
+            background: linear-gradient(180deg, rgba(5, 5, 5, 0) 0%, rgba(255, 0, 85, 0.05) 50%, rgba(5, 5, 5, 0) 100%);
+            position: relative;
+        }
+
+        .featured-banner {
+            background: var(--bg-panel);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 4rem;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(255, 0, 85, 0.2);
+        }
+
+        .featured-banner::before {
+            content: 'SIGNATURE PROJECT';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 0.3rem 0.8rem;
+            background: rgba(255, 0, 85, 0.1);
+            letter-spacing: 2px;
+        }
+
+        .featured-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .featured-icon {
+            font-size: 4rem;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
+        }
+
+        .featured-title h2 {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .featured-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .featured-description {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--text-main);
+            margin-bottom: 2rem;
+        }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .agent-card {
+            background: rgba(255, 0, 85, 0.05);
+            border: 1px solid rgba(255, 0, 85, 0.3);
+            padding: 2rem;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 0, 85, 0.2);
+            border-color: var(--accent);
+        }
+
+        .agent-card h4 {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .agent-card p {
+            color: var(--text-dim);
+            font-size: 1rem;
+        }
+
+        .achievement-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid rgba(255, 0, 85, 0.2);
+        }
+
+        .metric-box {
+            text-align: center;
+        }
+
+        .metric-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .timeline-section {
+            padding: 8rem 0;
+            position: relative;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, var(--primary), var(--secondary), transparent);
+            transform: translateX(-50%);
+        }
+
+        .timeline-node {
+            position: relative;
+            margin-bottom: 4rem;
+            width: 50%;
+            padding: 0 3rem;
+        }
+
+        .timeline-node:nth-child(odd) {
+            left: 0;
+            text-align: right;
+        }
+
+        .timeline-node:nth-child(even) {
+            left: 50%;
+            text-align: left;
+        }
+
+        .timeline-node::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            background: var(--bg-dark);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+            z-index: 10;
+        }
+
+        .timeline-node:nth-child(odd)::after {
+            right: -11px;
+        }
+
+        .timeline-node:nth-child(even)::after {
+            left: -11px;
+        }
+
+        .timeline-content {
+            background: var(--bg-panel);
+            padding: 2rem;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            border-radius: 4px;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .timeline-date {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .tech-section {
+            padding: 6rem 0;
+            background: linear-gradient(0deg, rgba(5, 5, 5, 0) 0%, rgba(20, 20, 35, 0.4) 50%, rgba(5, 5, 5, 0) 100%);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .tech-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .tech-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        .tech-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .tech-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .tech-card img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+            transition: filter 0.3s;
+        }
+
+        .tech-card:hover img {
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        .tech-card h4 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .projects-section {
+            padding: 8rem 0;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            perspective: 1000px;
+        }
+
+        .project-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+            transition: transform 0.1s;
+        }
+
+        .project-card-inner {
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .project-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(125deg, rgba(255, 255, 255, 0.1) 0%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.05) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .project-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+        }
+
+        .project-icon {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .project-type {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .project-card h3 {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .project-card p {
+            font-size: 1rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--secondary);
+            background: rgba(188, 19, 254, 0.1);
+            padding: 0.3rem 0.8rem;
+            border: 1px solid rgba(188, 19, 254, 0.3);
+            border-radius: 4px;
+        }
+
+        .stats-section {
+            background: linear-gradient(90deg, rgba(5, 5, 5, 1) 0%, rgba(20, 20, 35, 1) 50%, rgba(5, 5, 5, 1) 100%);
+            padding: 4rem 0;
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: transparent;
+            -webkit-text-stroke: 1px var(--primary);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .stat-number.accent {
+            -webkit-text-stroke: 1px var(--accent);
+        }
+
+        .stat-label {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .unique-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .unique-card {
+            background: var(--bg-panel);
+            padding: 2.5rem;
+            border-left: 3px solid var(--secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .unique-card:hover {
+            background: rgba(188, 19, 254, 0.05);
+        }
+
+        .unique-card h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .contact-section {
+            padding: 8rem 0 4rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .social-dock {
+            display: inline-flex;
+            gap: 1.5rem;
+            padding: 1rem 2rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            margin-top: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .social-icon {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            transition: 0.3s;
+            position: relative;
+            z-index: 10;
+        }
+
+        .social-icon:hover {
+            color: var(--primary);
+            transform: translateY(-5px) scale(1.2);
+            text-shadow: 0 0 15px var(--primary);
+        }
+
+        footer {
+            padding: 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero h1::before,
+            .hero h1::after {
+                display: none;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-node {
+                width: 100%;
+                padding-left: 50px;
+                padding-right: 0;
+                text-align: left;
+            }
+
+            .timeline-node:nth-child(even) {
+                left: 0;
+            }
+
+            .timeline-node::after {
+                left: 11px !important;
+                right: auto;
+            }
+
+            .unique-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .agent-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .achievement-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .cursor-dot,
+            .cursor-outline {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+    <canvas id="bg-canvas"></canvas>
+    <nav>
+        <div class="nav-logo">T.A.K<span style="color:var(--accent);">_</span></div>
+        <ul class="nav-links">
+            <li><a href="#home">// HOME</a></li>
+            <li><a href="#signature">// SIGNATURE</a></li>
+            <li><a href="#journey">// LOGS</a></li>
+            <li><a href="#projects">// MODULES</a></li>
+            <li><a href="#contact">// SIGNAL</a></li>
+        </ul>
+    </nav>
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-subtitle">> SYSTEM_READY: ONLINE</div>
+            <div class="glitch-wrapper">
+                <h1 data-text="THARIQ ARIAN KHALFANI">THARIQ ARIAN KHALFANI</h1>
+            </div>
+            <p class="hero-desc"> Architecting <span class="highlight">Autonomous Agents</span> & <br> Engineered <span class="highlight-sec">Self-Evaluating Intelligence</span>
+            </p>
+            <div class="btn-group">
+                <a href="#signature" class="cyber-btn">Initialize Protocol</a>
+                <a href="https://linkedin.com/in/thariq-arian-khalfani-6983971b8" target="_blank" class="cyber-btn secondary">Connect Uplink</a>
+            </div>
+        </div>
+    </section>
+    <section id="signature" class="featured-project-section">
+        <div class="container">
+            <div class="featured-banner">
+                <div class="featured-header">
+                    <div class="featured-icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div class="featured-title">
+                        <h2>Red Team Agentic Framework</h2>
+                        <p class="featured-subtitle">Lippo Malls Indonesia | 2025 | Agent-to-Agent Development</p>
+                    </div>
+                </div>
+                <p class="featured-description"> Revolutionary <span class="highlight-accent">autonomous AI evaluation system</span> where specialized agents continuously test, stress-validate, and improve GenAI systems through <span class="highlight-accent">agent-to-agent communication</span>. This framework replaces traditional static QA with <span class="highlight-accent">adaptive, AI-managed evaluation loops</span>, achieving what would take 1 year of human-in-the-loop progress in just <span class="highlight-accent">30 days of deployment</span>.
+                </p>
+                <div class="agent-grid">
+                    <div class="agent-card">
+                        <h4><i class="fas fa-brain"></i> CORA</h4>
+                        <p><strong>Context-Aware QA Shopping Assistant Agent</strong><br> Evaluates contextual understanding, RAG grounding accuracy, retrieval precision, and knowledge consistency across documentation.</p>
+                    </div>
+                    <div class="agent-card">
+                        <h4><i class="fas fa-microscope"></i> NIA</h4>
+                        <p><strong>Newcomer Introduction Simulator QA Agent</strong><br> Tests general capabilities, reasoning depth, feature completeness, and conversational intelligence through complex scenario simulations.</p>
+                    </div>
+                    <div class="agent-card">
+                        <h4><i class="fas fa-dragon"></i> HYDRA</h4>
+                        <p><strong>Hygiene & Defense Red-team Analyzer</strong><br> Executes adversarial testing for safety hygiene, refusal correctness, prompt-leakage detection, and ethical compliance validation.</p>
+                    </div>
+                </div>
+                <div class="achievement-metrics">
+                    <div class="metric-box">
+                        <div class="metric-number">3</div>
+                        <div class="metric-label">Autonomous Agents</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-number">24/7</div>
+                        <div class="metric-label">Continuous Monitoring</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-number">30x</div>
+                        <div class="metric-label">Acceleration Factor</div>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255, 0, 85, 0.05); border-radius: 10px; border: 1px solid rgba(255, 0, 85, 0.2);">
+                    <h4 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.2rem;">
+                        <i class="fas fa-lightbulb"></i> Innovation Breakthrough
+                    </h4>
+                    <p style="color: var(--text-dim);"> This system promotes <strong style="color: var(--accent);">agent-to-agent based development</strong>, where evaluation agents don't just test—they communicate, challenge, and co-evolve with production systems. By mirroring production agent behavior in controlled environments, CORA, NIA, and HYDRA create an adversarial feedback loop that identifies weaknesses, generates improvement signals, and validates changes before deployment. This autonomous QA intelligence eliminates manual testing bottlenecks and accelerates AI system maturity exponentially.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="journey" class="timeline-section">
+        <div class="container">
+            <h2 class="section-title">SYSTEM_LOGS</h2>
+            <div class="timeline">
+                <div class="timeline-node">
+                    <div class="timeline-content">
+                        <span class="timeline-date">2025 - PRESENT</span>
+                        <h3>Lippo Malls Indonesia</h3>
+                        <p class="highlight">Assistant Manager AI Engineer - Business System Analyst</p>
+                        <p>Deploying specialized QA agents (CORA, NIA, HYDRA) to continuously monitor and Red-Team GenAI systems. Pioneering agent-to-agent evaluation frameworks using AIRIA, DSPy, OpenAI Evals, and RAGAS. Replacing static tests with adaptive, adversarial intelligence loops that achieve 1 year of HITL progress in 30 days.</p>
+                    </div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-content">
+                        <span class="timeline-date">2024 - 2025</span>
+                        <h3>Philips</h3>
+                        <p class="highlight">Senior Associate Engineer, Equipment</p>
+                        <p>Integrated YOLOv11 & RD4AD vision systems with ABB robotics. Led automation projects for precision manufacturing (Lambert Shooter, GAIA, Slitting) with pharmaceutical compliance. Delivered production-grade AI solutions validated through IQ-EQ protocols and 3C documentation.</p>
+                    </div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-content">
+                        <span class="timeline-date">2024</span>
+                        <h3>Nexus Tagmemic</h3>
+                        <p class="highlight">Founder & Full Stack Engineer</p>
+                        <p>Developed ophthalmic diagnostic AI (YOLO-Seg, CNNs) for glaucoma/cataract detection. Mastered LLM data generation and prompt engineering at KUPU.ID, contributing to Large Language Model optimization and quality control.</p>
+                    </div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-content">
+                        <span class="timeline-date">2020 - 2024</span>
+                        <h3>Gadjah Mada University</h3>
+                        <p class="highlight">Engineering Physics (GPA: 3.32/4.00)</p>
+                        <p>Thesis on CNN implementation for Glaucoma diagnosis. Specialized in Control Systems, ML, Data Analytics, and Process Automation. Built foundation in instrumentation and intelligent systems.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="tech-section">
+        <div class="container">
+            <h2 class="section-title">WEAPONRY</h2>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+                    <h4>Python</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg" alt="PyTorch">
+                    <h4>PyTorch</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://img.stackshare.io/service/104874/default_bad90ad7fe8b7d69745d47d20322622e8609fb3f.png" alt="DSPy">
+                    <h4>DSPy</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg" alt="TF">
+                    <h4>TensorFlow</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg" alt="OpenCV">
+                    <h4>OpenCV</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://images.seeklogo.com/logo-png/61/2/langchain-white-logo-png_seeklogo-611657.png" alt="LangChain">
+                    <h4>LangChain</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="HF">
+                    <h4>Hugging Face</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker">
+                    <h4>Docker</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" alt="AWS">
+                    <h4>AWS</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg" alt="Azure">
+                    <h4>Azure</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" alt="Linux">
+                    <h4>Ubuntu Linux</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" alt="C++">
+                    <h4>C++</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL">
+                    <h4>MySQL</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git">
+                    <h4>Git</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" alt="Power BI">
+                    <h4>Power BI</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg" alt="NumPy">
+                    <h4>NumPy</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" alt="FastAPI">
+                    <h4>FastAPI</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ros/ros-original.svg" alt="ROS">
+                    <h4>ROS</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://wallpaperaccess.com/full/10823542.png" alt="NVIDIA CUDA">
+                    <h4>CUDA</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://e7.pngegg.com/pngimages/170/924/png-clipart-microsoft-sql-server-microsoft-azure-sql-database-microsoft-text-logo.png" alt="Microsoft SQL Database">
+                    <h4>Microsoft SQL DB</h4>
+                </div>
+                <div class="tech-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg" alt="Pandas">
+                    <h4>Pandas</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="projects" class="projects-section">
+        <div class="container">
+            <h2 class="section-title">PRODUCTION_MODULES</h2>
+            <div class="project-grid">
+                <div class="project-card js-tilt">
+                    <div class="project-card-inner">
+                        <div class="project-header">
+                            <div class="project-icon"><i class="fas fa-robot"></i></div>
+                            <div class="project-type">Multi-Agent AI</div>
+                        </div>
+                        <h3>Agentic Sensor Data Analysis</h3>
+                        <p>Built 7 specialized AI agents using DSPy for automated machinery vibration analysis and predictive maintenance on decanter centrifuges. Integrated OpenRouter API with Mistral AI, reducing analysis time by 90%.</p>
+                        <div class="project-tags">
+                            <span class="tag">DSPy</span>
+                            <span class="tag">Multi-Agent</span>
+                            <span class="tag">Mistral AI</span>
+                            <span class="tag">Predictive Maintenance</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card js-tilt">
+                    <div class="project-card-inner">
+                        <div class="project-header">
+                            <div class="project-icon"><i class="fas fa-eye"></i></div>
+                            <div class="project-type">Computer Vision</div>
+                        </div>
+                        <h3>Tampon Print Quality Inspector</h3>
+                        <p>Dual-stage vision system integrating YOLOv11 for ROI detection and RD4AD for anomaly detection. Deployed on Ubuntu with CUDA acceleration, achieving pharmaceutical-grade quality standards.</p>
+                        <div class="project-tags">
+                            <span class="tag">YOLOv11</span>
+                            <span class="tag">RD4AD</span>
+                            <span class="tag">CUDA</span>
+                            <span class="tag">ABB Robotics</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card js-tilt">
+                    <div class="project-card-inner">
+                        <div class="project-header">
+                            <div class="project-icon"><i class="fas fa-industry"></i></div>
+                            <div class="project-type">Industrial Automation</div>
+                        </div>
+                        <h3>Lambert Shooter Automation</h3>
+                        <p>Conducted FAT/SAT for Lambert Shooter transfer from Drachten to Batam. Implemented Gage R&R testing on Cognex vision system. Ensured IQ-EQ protocols and 3C documentation compliance.</p>
+                        <div class="project-tags">
+                            <span class="tag">FAT/SAT</span>
+                            <span class="tag">Cognex Vision</span>
+                            <span class="tag">IQ-EQ</span>
+                            <span class="tag">Validation</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card js-tilt">
+                    <div class="project-card-inner">
+                        <div class="project-header">
+                            <div class="project-icon"><i class="fas fa-cog"></i></div>
+                            <div class="project-type">Robotic Automation</div>
+                        </div>
+                        <h3>Slitting Machine Autoloading</h3>
+                        <p>Designed cost-effective $3,000 solution using Chinese bowl feeder (vs. $30,000 alternatives). Integrated ABB robot for automated product loading with complete IQ-EQ validation.</p>
+                        <div class="project-tags">
+                            <span class="tag">ABB Robot</span>
+                            <span class="tag">Cost Optimization</span>
+                            <span class="tag">Automation</span>
+                            <span class="tag">Gage R&R</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card js-tilt">
+                    <div class="project-card-inner">
+                        <div class="project-header">
+                            <div class="project-icon"><i class="fas fa-box"></i></div>
+                            <div class="project-type">Packaging Automation</div>
+                        </div>
+                        <h3>GAIA Packaging System</h3>
+                        <p>Conducted FAT/SAT on GAIA machine. Troubleshot Omron and Keyence sensors and vision systems. Delivered complete 3C documentation for compliance and standardization.</p>
+                        <div class="project-tags">
+                            <span class="tag">Omron</span>
+                            <span class="tag">Keyence</span>
+                            <span class="tag">Vision Systems</span>
+                            <span class="tag">3C Documentation</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card js-tilt">
+                    <div class="project-card-inner">
+                        <div class="project-header">
+                            <div class="project-icon"><i class="fas fa-stethoscope"></i></div>
+                            <div class="project-type">Medical AI</div>
+                        </div>
+                        <h3>Multi-modal Medical Image Analyzer</h3>
+                        <p>Built YOLO-Seg model for fundus and eye image analysis. Integrated Gemini 1.5 Flash chatbot for interactive diagnosis. Deployed via Docker with SQLite database for prediction storage.</p>
+                        <div class="project-tags">
+                            <span class="tag">YOLO-Seg</span>
+                            <span class="tag">Gemini AI</span>
+                            <span class="tag">Docker</span>
+                            <span class="tag">Healthcare</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card js-tilt">
+                    <div class="project-card-inner">
+                        <div class="project-header">
+                            <div class="project-icon"><i class="fas fa-brain"></i></div>
+                            <div class="project-type">RAG System</div>
+                        </div>
+                        <h3>Adaptive RAG LLM Models</h3>
+                        <p>Developed LLM application that dynamically updates its knowledge based on input data. Integrated Claude 3 Opus, RAGAS, and DSPy modules for adaptive learning and evaluation.</p>
+                        <div class="project-tags">
+                            <span class="tag">Claude 3</span>
+                            <span class="tag">RAGAS</span>
+                            <span class="tag">DSPy</span>
+                            <span class="tag">RAG</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card js-tilt">
+                    <div class="project-card-inner">
+                        <div class="project-header">
+                            <div class="project-icon"><i class="fas fa-microscope"></i></div>
+                            <div class="project-type">Deep Learning</div>
+                        </div>
+                        <h3>Glaucoma Diagnosis via CNN</h3>
+                        <p>Developed binary classification CNN model for glaucoma diagnosis using fundus images. Thesis project demonstrating deep learning application in medical diagnostics with high accuracy.</p>
+                        <div class="project-tags">
+                            <span class="tag">CNN</span>
+                            <span class="tag">Medical Imaging</span>
+                            <span class="tag">Classification</span>
+                            <span class="tag">Thesis</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div>
+                    <div class="stat-number accent" data-target="30">0+</div>
+                    <div class="stat-label">Days to 1 Year HITL</div>
+                </div>
+                <div>
+                    <div class="stat-number" data-target="7">0+</div>
+                    <div class="stat-label">Production Projects</div>
+                </div>
+                <div>
+                    <div class="stat-number" data-target="3">0</div>
+                    <div class="stat-label">Autonomous QA Agents</div>
+                </div>
+                <div>
+                    <div class="stat-number" data-target="90">0%</div>
+                    <div class="stat-label">Analysis Time Reduction</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="timeline-section">
+        <div class="container">
+            <h2 class="section-title">NOVELTY_FACTORS</h2>
+            <div class="unique-grid">
+                <div class="unique-card">
+                    <h3>🌉 The Bridge Builder</h3>
+                    <p>Unifying industrial automation (ABB, PLC, Omron, Keyence) with Agentic AI. I make code that touches the physical world and evaluates itself through intelligent feedback loops.</p>
+                </div>
+                <div class="unique-card">
+                    <h3>⚖️ The Agentic Evaluator</h3>
+                    <p>Building the police force for AI. Agents CORA, NIA, and HYDRA don't just act; they judge, stress-test, and govern other LLMs through agent-to-agent communication frameworks.</p>
+                </div>
+                <div class="unique-card">
+                    <h3>👁️ Pixels to Intelligence</h3>
+                    <p>A rare skillset spanning precise sub-millimeter Computer Vision (YOLOv11, RD4AD) to high-level abstract Language Model evaluation (DSPy, RAGAS, OpenAI Evals).</p>
+                </div>
+                <div class="unique-card">
+                    <h3>🎯 Production Reality</h3>
+                    <p>Zero theoretical fluff. Every project listed is production-grade, validated (FAT/SAT), and compliant (pharmaceutical/enterprise). I deliver systems that work in the real world.</p>
+                </div>
+                <div class="unique-card">
+                    <h3>⚡ 30x Acceleration</h3>
+                    <p>Achieved 1 year of human-in-the-loop progress in 30 days through autonomous agent-driven evaluation. This isn't optimization—it's transformation of the QA paradigm.</p>
+                </div>
+                <div class="unique-card">
+                    <h3>🔬 Agent-to-Agent Pioneer</h3>
+                    <p>Pioneering agent-to-agent based development where evaluation agents mirror, challenge, and co-evolve with production systems, creating continuous improvement intelligence.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2 class="section-title">LET'S CONNECT</h2>
+            <p style="color: var(--text-dim); font-size: 1.2rem; max-width: 600px; margin: 0 auto;"> Ready to collaborate on the bleeding edge of Agentic AI, Industrial Automation, and Agent-to-Agent Development.
+            </p>
+            <div class="social-dock">
+                <a href="mailto:ariankhalfani@gmail.com" class="social-icon" title="Email"><i class="fas fa-envelope"></i></a>
+                <a href="https://linkedin.com/in/thariq-arian-khalfani-6983971b8" class="social-icon" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/Ariankhalfani" class="social-icon" title="GitHub"><i class="fab fa-github"></i></a>
+                <a href="https://huggingface.co/ariankhalfani" class="social-icon" title="Hugging Face"><i class="fas fa-face-smile"></i></a>
+                <a href="https://wa.me/6282259287776" class="social-icon" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <div style="margin-top: 3rem;">
+                <a href="Resume_Thariq_Arian_Khalfani_Latest.pdf" download class="cyber-btn">
+                    <i class="fas fa-download" style="margin-right: 10px;"></i> Download Resume Data
+                </a>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <p>SYSTEM_STATUS: STABLE | © 2025 Thariq Arian Khalfani</p>
+        <p>Engineered with Precision. Powered by Agentic Intelligence.</p>
+    </footer>
+    <script>
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, {
+                duration: 500,
+                fill: "forwards"
+            });
+        });
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        const getParticleCount = () => window.innerWidth < 768 ? 40 : 100;
+        const getConnectionDistance = () => window.innerWidth < 768 ? 100 : 150;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 243, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = getParticleCount();
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < getConnectionDistance()) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 243, 255, ${1 - distance / getConnectionDistance()})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        window.addEventListener('resize', () => {
+            resize();
+            initParticles();
+        });
+        resize();
+        initParticles();
+        animate();
+        const cards = document.querySelectorAll('.js-tilt');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        });
+        const stats = document.querySelectorAll('.stat-number');
+        const observerOptions = {
+            threshold: 0.5
+        };
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = +entry.target.getAttribute('data-target');
+                    const duration = 2000;
+                    const increment = target / (duration / 16);
+                    let current = 0;
+                    const updateCount = () => {
+                        current += increment;
+                        if (current < target) {
+                            entry.target.innerText = Math.ceil(current) + (entry.target.innerText.includes('+') ? '+' : entry.target.innerText.includes('%') ? '%' : '');
+                            requestAnimationFrame(updateCount);
+                        } else {
+                            entry.target.innerText = target + (entry.target.innerText.includes('+') ? '+' : entry.target.innerText.includes('%') ? '%' : '');
+                        }
+                    };
+                    updateCount();
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        stats.forEach(stat => statsObserver.observe(stat));
+    </script>
+</body>
+
+</html>
